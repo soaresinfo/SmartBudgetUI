@@ -74,7 +74,9 @@ No diretório do projeto, você pode executar:
 * npm run format: Formata todo o código usando o Prettier.
 
 ## 📂 Estrutura do Projeto
-Uma visão geral da estrutura de pastas mais importante:.
+Uma visão geral da estrutura de pastas mais importante:
+```
+.
 ├── src/
 │   ├── lib/
 │   │   ├── services/       # Lógica para chamadas de API (ex: investmentService.ts)
@@ -87,3 +89,4 @@ Uma visão geral da estrutura de pastas mais importante:.
 │       └── transactions/
 │           └── +page.svelte # Página de transações (/transactions)
 └── static/                 # Arquivos estáticos (imagens, fontes, etc.)
+```
