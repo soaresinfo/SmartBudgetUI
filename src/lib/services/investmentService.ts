@@ -1,0 +1,45 @@
+console.log("Vite env object:", import.meta.env);
+// Importa a variável de ambiente do módulo virtual do SvelteKit
+import { PUBLIC_API_BASE_URL } from '$env/static/public';
+
+// Define um "contrato" para o objeto de investimento.
+// Isso garante autocompletar e segurança de tipos no seu código.
+export interface Investment {
+	idInvestment: string;
+	balance: number;
+	monthRevenue: number;
+	lastUpdateDate: string; // A data virá como string no JSON
+	investmentType: {
+		idInvestmentType: string;
+		description: string;
+	};
+	location: {
+		idLocation: string;
+		description: string;
+	};
+}
+
+/**
+ * Busca a lista de investimentos da API do backend.
+ * @param startDate - A data de início no formato 'YYYY-MM-DD'
+ * @param endDate - A data de fim no formato 'YYYY-MM-DD'
+ * @returns Uma promessa que resolve para um array de investimentos.
+ */
+export async function getInvestments(startDate: string, endDate: string): Promise<Investment[]> {
+	// Constrói a URL completa para a chamada
+	const apiUrl = `${PUBLIC_API_BASE_URL}/investments?startDate=${startDate}&endDate=${endDate}`;
+
+	// Log para depuração: verifique no console do navegador se a URL está correta
+	console.log('Buscando dados da API:', apiUrl);
+
+	const response = await fetch(apiUrl);
+
+	if (!response.ok) {
+		// Se a resposta não for bem-sucedida, lança um erro
+		console.error('Falha na chamada à API:', response.status, response.statusText);
+		throw new Error('Não foi possível buscar os investimentos do servidor.');
+	}
+
+	// Converte a resposta para JSON e a retorna
+	return await response.json();
+}
