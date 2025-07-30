@@ -2,9 +2,6 @@
 
 Este é o projeto frontend para o aplicativo SmartBudget, desenvolvido com SvelteKit para criar uma interface de usuário rápida, reativa e moderna.
 
-![Screenshot da Aplicação](https://via.placeholder.com/800x450.png?text=Adicione+um+screenshot+da+sua+aplicação+aqui)
-> **Dica:** Tire um print da sua aplicação rodando e substitua o link acima para deixar seu README mais profissional.
-
 ## 🚀 Funcionalidades
 
 -   **Visualização de Investimentos:** Exibe os investimentos do usuário em um layout de cartões, agrupados por data para fácil análise.
@@ -40,16 +37,16 @@ Siga os passos abaixo para configurar e rodar o projeto localmente.
 
 1.  **Clone o repositório** (se ainda não o fez):
 ```Shell Script 
-git clone <url-do-seu-repositorio>
+git clone https://github.com/soaresinfo/SmartBudgetUI.git
 cd SmartBudgetUI
 ```
     
-2.  **Instale as dependências do projeto**:
+2.  **Crie a imagem docker**:
 ```Shell Script 
-npm install
+docker build --build-arg PUBLIC_API_BASE_URL=http://localhost:8080/budget/api/v1 -t smartbudget-ui .
 ```
 
-3.  **Configure as variáveis de ambiente**: Crie um arquivo chamado .env na raiz do projeto frontend e adicione a URL do seu backend.
+3.  **Configure as variáveis de ambiente**: Crie um arquivo chamado .env na raiz do projeto frontend e adicione a URL do seu backend caso for rodar fora do container.
 >`.env
 ```Ini
 # O prefixo PUBLIC_ é obrigatório para que a variável
@@ -59,10 +56,13 @@ PUBLIC_API_BASE_URL=http://localhost:8080/budget/api/v1
 
 4.  **Inicie o servidor de desenvolvimento**: Certifique-se de que seu backend (Java/Spring) já está rodando. Em seguida, execute:
 ```Shell Script 
+docker run -d -p 3000:3000 -e PUBLIC_API_BASE_URL=http://localhost:8080/budget/api/v1 --name smartbudget-ui-container smartbudget-ui
+
+#caso rodar localmente
 npm run dev
 ```
 
-5.  **Abra no navegador**: O aplicativo estará disponível em http://localhost:5173.
+5.  **Abra no navegador**: O aplicativo estará disponível em http://localhost:3000 (container) ou http://localhost:5173 (local).
 
 ## 📜 Scripts Disponíveis
 No diretório do projeto, você pode executar:

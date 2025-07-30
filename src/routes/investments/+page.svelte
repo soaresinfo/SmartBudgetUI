@@ -19,7 +19,7 @@
 	 */
 	function groupInvestmentsByDate(investments: Investment[]) {
 		const grouped = investments.reduce((acc, investment) => {
-			const date = investment.lastUpdateDate;
+			const date = investment.last_update_date;
 			if (!acc[date]) {
 				acc[date] = [];
 			}
@@ -59,9 +59,9 @@
 						<!-- Grid para as colunas de investimentos -->
 						<div class="investments-grid">
 							<!-- Loop interno para cada investimento dentro do grupo -->
-							{#each group.investments as investment (investment.idInvestment)}
+							{#each group.investments as investment (investment.id_investment)}
 								<div class="investment-card">
-									<h3 class="card-title">{investment.investmentType.description}</h3>
+									<h3 class="card-title">{investment.investment_type.description}</h3>
 									<p class="card-location">em {investment.location.description}</p>
 									<p class="card-balance">
 										{new Intl.NumberFormat('pt-BR', {
@@ -75,7 +75,7 @@
 											{new Intl.NumberFormat('pt-BR', {
 												style: 'currency',
 												currency: 'BRL'
-											}).format(investment.monthRevenue)}
+											}).format(investment.month_revenue)}
 										</span>
 									</p>
 								</div>

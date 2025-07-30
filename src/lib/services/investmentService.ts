@@ -5,16 +5,16 @@ import { PUBLIC_API_BASE_URL } from '$env/static/public';
 // Define um "contrato" para o objeto de investimento.
 // Isso garante autocompletar e segurança de tipos no seu código.
 export interface Investment {
-	idInvestment: string;
+	id_investment: string;
 	balance: number;
-	monthRevenue: number;
-	lastUpdateDate: string; // A data virá como string no JSON
-	investmentType: {
-		idInvestmentType: string;
+	month_revenue: number;
+	last_update_date: string; // A data virá como string no JSON
+	investment_type: {
+		id_investment_type: string;
 		description: string;
 	};
 	location: {
-		idLocation: string;
+		id_location: string;
 		description: string;
 	};
 }
