@@ -4,26 +4,46 @@
 	import { getTransactions } from '$lib/services/transactionService';
 
 	// Variável para guardar a "promessa" dos dados
-	let transactionsPromise: Promise<Transaction[]>;
+	let transactionsPromise: Promise<Transaction[]> | null = null;
+
+	// Variáveis para os campos de data
+	let startDate: string;
+	let endDate: string;
 
 	// onMount garante que o código só rode no navegador
 	onMount(() => {
-		const today = new Date().toISOString().split('T')[0]; // Formato: YYYY-MM-DD
-		// Buscando transações do último ano como exemplo
-		const lastYear = new Date();
-		lastYear.setFullYear(lastYear.getFullYear() - 1);
-		const startDate = '2025-07-28';
-        console.log('Buscando transações...')
-		// Inicia a busca pelos dados e armazena a promise
-		transactionsPromise = getTransactions(startDate);
-        
+		// Define as datas padrão para o mês atual
+		const today = new Date();
+		const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+		const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+		// Formata para YYYY-MM-DD, que é o formato esperado pelo input type="date"
+		startDate = firstDayOfMonth.toISOString().split('T')[0];
+		endDate = lastDayOfMonth.toISOString().split('T')[0];
 	});
 
-    console.log('sasd');
+	function handleSearch() {
+		if (startDate && endDate) {
+			console.log(`Buscando transações de ${startDate} a ${endDate}`);
+			transactionsPromise = getTransactions(startDate, endDate);
+		}
+	}
 </script>
 
 <main class="container">
 	<h1>Transações Recentes</h1>
+
+	<div class="filter-form">
+		<div class="form-group">
+			<label for="startDate">Data de Início</label>
+			<input type="date" id="startDate" bind:value={startDate} />
+		</div>
+		<div class="form-group">
+			<label for="endDate">Data de Fim</label>
+			<input type="date" id="endDate" bind:value={endDate} />
+		</div>
+		<button on:click={handleSearch}>Pesquisar</button>
+	</div>
 
 	<!-- O bloco {#await} do Svelte gerencia os estados de carregamento e erro -->
 	{#if transactionsPromise}
@@ -89,6 +109,53 @@
 		border-bottom: 2px solid #3498db;
 		padding-bottom: 0.5rem;
 		margin-bottom: 2rem;
+	}
+
+	.filter-form {
+		display: flex;
+		gap: 1rem;
+		align-items: flex-end;
+		margin-bottom: 2rem;
+		padding: 1rem;
+		background-color: #f9f9f9;
+		border-radius: 8px;
+		border: 1px solid #eee;
+		flex-wrap: wrap;
+	}
+
+	.form-group {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.form-group label {
+		margin-bottom: 0.5rem;
+		font-size: 0.9rem;
+		font-weight: 500;
+		color: #34495e;
+	}
+
+	.form-group input[type='date'] {
+		padding: 8px 10px;
+		border: 1px solid #bdc3c7;
+		border-radius: 4px;
+		font-family: inherit;
+		font-size: 1rem;
+	}
+
+	.filter-form button {
+		padding: 10px 20px;
+		border: none;
+		background-color: #3498db;
+		color: white;
+		border-radius: 4px;
+		cursor: pointer;
+		font-weight: bold;
+		transition: background-color 0.2s;
+	}
+
+	.filter-form button:hover {
+		background-color: #2980b9;
 	}
 
 	.table-container {

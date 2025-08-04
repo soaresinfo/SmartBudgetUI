@@ -29,13 +29,6 @@ Antes de começar, certifique-se de que você tem os seguintes softwares instala
 Siga os passos abaixo para configurar e rodar o projeto localmente.
 
 1.  **Clone o repositório** (se ainda não o fez):
-    
-
-## ⚙️ Instalação e Execução
-
-Siga os passos abaixo para configurar e rodar o projeto localmente.
-
-1.  **Clone o repositório** (se ainda não o fez):
 ```Shell Script 
 git clone https://github.com/soaresinfo/SmartBudgetUI.git
 cd SmartBudgetUI

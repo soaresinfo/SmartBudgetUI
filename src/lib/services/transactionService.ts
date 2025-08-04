@@ -7,7 +7,8 @@ export interface Transaction {
 	id_transaction: string;
 	description: string;
 	value: number;
-	transaction_date: string; // A data virá como string no JSON 
+	transaction_date: string; // A data virá como string no JSON
+	type: 'INCOME' | 'EXPENSE';
 	expense: {
 		id_expense: string;
 		planned_value:number;
@@ -17,13 +18,13 @@ export interface Transaction {
 
 /**
  * Busca a lista de transações da API do backend.
- * @param startDate - A data de início no formato 'YYYY-MM-DD'
+ * @param startDate - A data de início no formato 'YYYY-MM-DD'.
  * @param endDate - A data de fim no formato 'YYYY-MM-DD'
  * @returns Uma promessa que resolve para um array de transações.
  */
-export async function getTransactions(transactionDate: string): Promise<Transaction[]> {
+export async function getTransactions(startDate: string, endDate: string): Promise<Transaction[]> {
 	// Constrói a URL completa para a chamada
-	const apiUrl = `${PUBLIC_API_BASE_URL}/transactions?transactionDate=${transactionDate}`;
+	const apiUrl = `${PUBLIC_API_BASE_URL}/transactions?startDate=${startDate}&endDate=${endDate}`;
 
 	// Log para depuração: verifique no console do navegador se a URL está correta
 	console.log('Buscando transações da API:', apiUrl);
