@@ -36,7 +36,7 @@ cd SmartBudgetUI
     
 2.  **Crie a imagem docker**:
 ```Shell Script 
-docker build --build-arg PUBLIC_API_BASE_URL=http://localhost:8080/budget/api/v1 -t smartbudget-ui .
+docker build --build-arg PUBLIC_API_BASE_URL=http://localhost:8080 --build-arg PUBLIC_API_PATH_URL=/budget/api -t smartbudget-ui .
 ```
 
 3.  **Configure as variáveis de ambiente**: Crie um arquivo chamado .env na raiz do projeto frontend e adicione a URL do seu backend caso for rodar fora do container.
@@ -44,12 +44,17 @@ docker build --build-arg PUBLIC_API_BASE_URL=http://localhost:8080/budget/api/v1
 ```Ini
 # O prefixo PUBLIC_ é obrigatório para que a variável
 # seja exposta ao código do navegador de forma segura.
-PUBLIC_API_BASE_URL=http://localhost:8080/budget/api/v1
+PUBLIC_API_BASE_URL=http://localhost:8080
+PUBLIC_API_PATH_URL=/budget/api
 ```
 
 4.  **Inicie o servidor de desenvolvimento**: Certifique-se de que seu backend (Java/Spring) já está rodando. Em seguida, execute:
 ```Shell Script 
-docker run -d -p 3000:3000 -e PUBLIC_API_BASE_URL=http://localhost:8080/budget/api/v1 --name smartbudget-ui-container smartbudget-ui
+docker run -d -p 3000:3000 -e PUBLIC_API_BASE_URL=http://localhost:8080 -e PUBLIC_API_PATH_URL=/budget/api --name smartbudget-ui-container smartbudget-ui
+
+#parar o container e remover arquivos para novo build
+docker stop smartbudget-ui-container
+docker rm smartbudget-ui-container
 
 #caso rodar localmente
 npm run dev

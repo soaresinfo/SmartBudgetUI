@@ -4,8 +4,10 @@ FROM node:18-alpine AS build
 
 # Declara um argumento que pode ser passado durante o build
 ARG PUBLIC_API_BASE_URL
+ARG PUBLIC_API_PATH_URL
 # Define a variável de ambiente para os comandos RUN subsequentes
 ENV PUBLIC_API_BASE_URL=$PUBLIC_API_BASE_URL
+ENV PUBLIC_API_PATH_URL=$PUBLIC_API_PATH_URL
 
 # Define o diretório de trabalho dentro do container
 WORKDIR /app
