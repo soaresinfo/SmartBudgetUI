@@ -2,28 +2,36 @@
 	// Importa o CSS global se você tiver um.
 	// Se não, pode remover esta linha.
 	//import '../app.css';
+	import { authToken } from '$lib/stores/auth';
+	import { logout } from '$lib/services/authService';
 </script>
 
 <!-- 
   Este é o nosso layout principal. 
   Tudo aqui aparecerá em TODAS as páginas.
 -->
-<header class="main-header">
-	<div class="container">
-		<a href="/" class="logo">SmartBudget</a>
+<!-- O cabeçalho só será renderizado se o usuário estiver autenticado (se o token existir) -->
+{#if $authToken}
+	<header class="main-header">
+		<div class="container">
+			<a href="/" class="logo">SmartBudget</a>
 
-		<nav class="main-nav">
-			<ul>
-				<li>
-					<a href="/investments">Investimentos</a>
-				</li>
-				<li>
-					<a href="/transactions">Transações</a>
-				</li>
-			</ul>
-		</nav>
-	</div>
-</header>
+			<nav class="main-nav">
+				<ul>
+					<li>
+						<a href="/investments">Investimentos</a>
+					</li>
+					<li>
+						<a href="/transactions">Transações</a>
+					</li>
+					<li>
+						<button on:click={logout} class="logout-button">Sair</button>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</header>
+{/if}
 
 <!-- 
   A tag <slot /> é um placeholder especial do Svelte.
@@ -57,6 +65,16 @@
 		font-weight: bold;
 		color: #3498db;
 		text-decoration: none;
+	}
+	
+	.logout-button {
+		padding: 8px 16px;
+		background-color: #e74c3c;
+		color: white;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+		font-weight: bold;
 	}
 
 	.main-nav ul {

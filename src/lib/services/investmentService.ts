@@ -1,7 +1,6 @@
-console.log("Vite env object:", import.meta.env);
 // Importa a variável de ambiente do módulo virtual do SvelteKit
-import { PUBLIC_API_BASE_URL } from '$env/static/public';
-
+import { PUBLIC_API_PATH_URL } from '$env/static/public';
+import { apiClient } from './apiClient';
 // Define um "contrato" para o objeto de investimento.
 // Isso garante autocompletar e segurança de tipos no seu código.
 export interface Investment {
@@ -27,8 +26,9 @@ export interface Investment {
  */
 export async function getInvestments(startDate: string, endDate: string): Promise<Investment[]> {
 	// Constrói a URL completa para a chamada
-	const apiUrl = `${PUBLIC_API_BASE_URL}/investments?startDate=${startDate}&endDate=${endDate}`;
-
+	const apiUrl = `${PUBLIC_API_PATH_URL}/v1/investments?startDate=${startDate}&endDate=${endDate}`;
+	const data = await apiClient.get(apiUrl)
+	return data as Investment[];
 	// Log para depuração: verifique no console do navegador se a URL está correta
 	console.log('Buscando dados da API:', apiUrl);
 

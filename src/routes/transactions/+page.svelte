@@ -20,6 +20,8 @@
 		// Formata para YYYY-MM-DD, que é o formato esperado pelo input type="date"
 		startDate = firstDayOfMonth.toISOString().split('T')[0];
 		endDate = lastDayOfMonth.toISOString().split('T')[0];
+
+		handleSearch();
 	});
 
 	function handleSearch() {
@@ -32,7 +34,6 @@
 
 <main class="container">
 	<h1>Transações Recentes</h1>
-
 	<div class="filter-form">
 		<div class="form-group">
 			<label for="startDate">Data de Início</label>
