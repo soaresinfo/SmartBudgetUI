@@ -15,7 +15,16 @@ export interface Transaction {
         description:string;
 	};
 }
-
+// Define o tipo para criar uma nova transação.
+// Não inclui 'id_transaction' ou o objeto 'expense' aninhado,
+// pois o backend cuidará disso.
+export type NewTransaction = {
+	description: string;
+	value: number;
+	transaction_date: string;
+	type: 'INCOME' | 'EXPENSE';
+	id_expense?: string; // Opcional, pois só se aplica a 'EXPENSE'
+};
 /**
  * Busca a lista de transações da API do backend.
  * @param startDate - A data de início no formato 'YYYY-MM-DD'.
@@ -25,14 +34,13 @@ export interface Transaction {
 export async function getTransactions(startDate: string, endDate: string): Promise<Transaction[]> {
 	const data = await apiClient.get(`${PUBLIC_API_PATH_URL}/v1/transactions?startDate=${startDate}&endDate=${endDate}`);
 	return data as Transaction[];
-	const response = await fetch(
-		`${PUBLIC_API_PATH_URL}/v1/transactions?startDate=${startDate}&endDate=${endDate}`
-	);
 
-	if (!response.ok) {
-		throw new Error('Falha ao buscar transações');
-	}
-	return response.json();
-	// O apiClient cuidará de adicionar o token e tratar erros de autenticação.
+}
 
+/**
+ * Salva uma nova transação na API do backend.
+ * @param transaction - O objeto da nova transação.
+ */
+export async function saveTransaction(transaction: NewTransaction): Promise<void> {
+	await apiClient.post(`${PUBLIC_API_PATH_URL}/v1/transactions`, transaction);
 }
