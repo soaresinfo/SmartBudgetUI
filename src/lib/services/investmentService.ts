@@ -26,20 +26,8 @@ export interface Investment {
  */
 export async function getInvestments(startDate: string, endDate: string): Promise<Investment[]> {
 	// Constrói a URL completa para a chamada
-	const apiUrl = `${PUBLIC_API_PATH_URL}/v1/investments?startDate=${startDate}&endDate=${endDate}`;
-	const data = await apiClient.get(apiUrl)
+	const data = await apiClient.get(
+		`${PUBLIC_API_PATH_URL}/v1/investments?startDate=${startDate}&endDate=${endDate}`
+	);
 	return data as Investment[];
-	// Log para depuração: verifique no console do navegador se a URL está correta
-	console.log('Buscando dados da API:', apiUrl);
-
-	const response = await fetch(apiUrl);
-
-	if (!response.ok) {
-		// Se a resposta não for bem-sucedida, lança um erro
-		console.error('Falha na chamada à API:', response.status, response.statusText);
-		throw new Error('Não foi possível buscar os investimentos do servidor.');
-	}
-
-	// Converte a resposta para JSON e a retorna
-	return await response.json();
 }
