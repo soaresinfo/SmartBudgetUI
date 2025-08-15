@@ -19,6 +19,7 @@ export interface Transaction {
 // Não inclui 'id_transaction' ou o objeto 'expense' aninhado,
 // pois o backend cuidará disso.
 export type NewTransaction = {
+	id_transaction: string;
 	description: string;
 	value: number;
 	transaction_date: string;
