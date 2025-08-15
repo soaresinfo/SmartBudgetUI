@@ -47,7 +47,7 @@
 	.main-header {
 		background-color: #ffffff;
 		border-bottom: 1px solid #dfe6e9;
-		padding: 1rem 0;
+		padding: .5rem 0;
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 	}
 
@@ -117,8 +117,4 @@
 		transform-origin: bottom left;
 	}
 
-	/* Garante que o conteúdo principal não fique colado no cabeçalho */
-	main {
-		padding-top: 2rem;
-	}
 </style>
