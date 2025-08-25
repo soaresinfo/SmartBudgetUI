@@ -25,13 +25,18 @@ async function request(method: string, url: string, data?: unknown) {
 
 	const response = await fetch(`${PUBLIC_API_BASE_URL}${url}`, options);
 
-	if (response.status === 401) {
-		// Token inválido ou expirado. Limpa o token e redireciona para o login.
+	if (response.status === 401 || response.status === 403) {
+		// Token inválido/expirado (401) ou acesso negado (403).
+		// Em ambos os casos, limpamos o token e forçamos um novo login.
+		const errorMessage =
+			response.status === 401
+				? 'Sessão expirada. Por favor, faça o login novamente.'
+				: 'Acesso negado. Você não tem permissão para acessar este recurso.';
 		authToken.set(null);
 		if (browser) {
 			await goto('/login');
 		}
-		throw new Error('Sessão expirada. Por favor, faça o login novamente.');
+		throw new Error(errorMessage);
 	}
 
 	if (!response.ok) {
