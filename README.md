@@ -4,8 +4,9 @@ Este é o projeto frontend para o aplicativo SmartBudget, desenvolvido com Svelt
 
 ## 🚀 Funcionalidades
 
--   **Visualização de Investimentos:** Exibe os investimentos do usuário em um layout de cartões, agrupados por data para fácil análise.
--   **Listagem de Transações:** Apresenta as transações de receita e despesa em uma tabela clara e organizada, com valores coloridos para rápida identificação.
+-   **Visualização de Investimentos:** Exibe os investimentos do usuário em um layout de cartões, agrupados por data para fácil análise e em formato de tabela para mostrar períodos maiores.
+-   **Listagem de Transações:** Apresenta as transações de despesa em uma tabela clara e organizada, com valores coloridos para rápida identificação.
+-   **Edição de Transações:** A tela de transação possui sessão para cadastrar e editar transações. Na tabela possui botões de editar e excluir.
 -   **Navegação Unificada:** Um cabeçalho de navegação persistente que permite ao usuário alternar facilmente entre as diferentes seções do aplicativo.
 -   **Design Responsivo:** A interface se adapta a diferentes tamanhos de tela, proporcionando uma boa experiência tanto em desktops quanto em dispositivos móveis.
 
