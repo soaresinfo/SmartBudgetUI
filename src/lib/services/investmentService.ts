@@ -5,6 +5,7 @@ import { apiClient } from './apiClient';
 // Isso garante autocompletar e segurança de tipos no seu código.
 export interface Investment {
 	id_investment: string;
+	id_portfolio: string;
 	balance: number;
 	month_revenue: number;
 	last_update_date: string; // A data virá como string no JSON
@@ -18,6 +19,15 @@ export interface Investment {
 	};
 }
 
+export type NewInvestment = {
+	id_investment: string;
+	id_portfolio: string;
+	balance: number;
+	month_revenue: number;
+	last_update_date: string;
+	id_investment_type: string;
+	id_location: string;
+};
 /**
  * Busca a lista de investimentos da API do backend.
  * @param startDate - A data de início no formato 'YYYY-MM-DD'
@@ -30,4 +40,8 @@ export async function getInvestments(startDate: string, endDate: string): Promis
 		`${PUBLIC_API_PATH_URL}/v1/investments?startDate=${startDate}&endDate=${endDate}`
 	);
 	return data as Investment[];
+}
+
+export async function saveInvestment(investment: NewInvestment): Promise<void> {
+	await apiClient.post(`${PUBLIC_API_PATH_URL}/v1/investments`, investment);
 }
