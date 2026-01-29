@@ -9,8 +9,8 @@ export interface Transaction {
 	value: number;
 	transaction_date: string; // A data virá como string no JSON
 	type: 'INCOME' | 'EXPENSE';
-	expense: {
-		id_expense: string;
+	category: {
+		id_category: string;
 		planned_value:number;
         description:string;
 	};
@@ -24,7 +24,7 @@ export type NewTransaction = {
 	value: number;
 	transaction_date: string;
 	type: 'INCOME' | 'EXPENSE';
-	id_expense?: string; // Opcional, pois só se aplica a 'EXPENSE'
+	id_category?: string; // Opcional, pois só se aplica a 'EXPENSE'
 };
 /**
  * Busca a lista de transações da API do backend.

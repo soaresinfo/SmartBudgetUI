@@ -18,7 +18,7 @@
 		value: 0,
 		transaction_date: new Date().toISOString().split('T')[0],
 		type: 'EXPENSE',
-		id_expense: undefined
+		id_category: undefined
 	};
 	let expenseCategories: ExpenseCategory[] = [];
 	let isSaving = false;
@@ -51,10 +51,13 @@
 	async function fetchCategories() {
 		try {
 			expenseCategories = await getExpenseCategories();
+			console.log('opa');
+			console.log(expenseCategories);
+		
 			if (expenseCategories.length > 0) {
 				// Define uma categoria padrão se for uma despesa
 				if (newTransaction.type === 'EXPENSE') {
-					newTransaction.id_expense = expenseCategories[0].id_expense;
+					newTransaction.id_category = expenseCategories[0].id_category;
 				}
 			}
 		} catch (error) {
@@ -70,7 +73,7 @@
 			value: 0,
 			transaction_date: new Date().toISOString().split('T')[0],
 			type: 'EXPENSE',
-			id_expense: expenseCategories.length > 0 ? expenseCategories[0].id_expense : undefined
+			id_category: expenseCategories.length > 0 ? expenseCategories[0].id_category : undefined
 		};
 		saveError = null;
 	}
@@ -90,7 +93,7 @@
 			// Garante que id_expense seja nulo se não for uma despesa
 			const transactionToSave = {
 				...newTransaction,
-				id_expense: newTransaction.type === 'EXPENSE' ? newTransaction.id_expense : undefined
+				id_category: newTransaction.type === 'EXPENSE' ? newTransaction.id_category : undefined
 			};
 
 			await saveTransaction(transactionToSave);
@@ -118,7 +121,7 @@
 			value: transaction.value,
 			transaction_date: transaction.transaction_date,
 			type: 'EXPENSE',
-			id_expense: transaction.expense ? transaction.expense.id_expense : undefined
+			id_category: transaction.category ? transaction.category.id_category : undefined
 		};
 		showFormFields = true; // Garante que o formulário esteja visível
 		console.log('Editar transação:', transaction);
@@ -167,9 +170,9 @@
 					{#if newTransaction.type === 'EXPENSE'}
 						<div class="form-group full-width">
 							<label for="category">Categoria</label>
-							<select id="category" bind:value={newTransaction.id_expense} required>
-								{#each expenseCategories as category (category.id_expense)}
-									<option value={category.id_expense}>{category.description}</option>
+							<select id="category" bind:value={newTransaction.id_category} required>
+								{#each expenseCategories as category (category.id_category)}
+									<option value={category.id_category}>{category.description}</option>
 								{/each}
 							</select>
 						</div>
@@ -230,7 +233,7 @@
 								<tr>
 									<td>{new Date(transaction.transaction_date + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
 									<td>{transaction.description}</td>
-									<td>{transaction.expense?.description ?? '-'}</td>
+									<td>{transaction.category?.description ?? '-'}</td>
 									<td
 										class="align-right {transaction.type === 'INCOME' ? 'income' : 'expense'}"
 									>
