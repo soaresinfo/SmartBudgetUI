@@ -16,3 +16,7 @@ export async function getExpenseCategories(): Promise<ExpenseCategory[]> {
 	return data as ExpenseCategory[];
 }
 
+export async function getExpenseCategoriesByParentId(idParent: string): Promise<ExpenseCategory[]> {
+	const data = await apiClient.get(`${PUBLIC_API_PATH_URL}/v1/categories?idParent=${idParent}`);
+	return data as ExpenseCategory[];
+}

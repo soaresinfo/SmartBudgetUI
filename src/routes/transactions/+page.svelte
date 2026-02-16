@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { Transaction, NewTransaction } from '$lib/services/transactionService';
-	import { getTransactions, saveTransaction } from '$lib/services/transactionService';
+	import { getTransactions, saveTransaction, deleteTransaction } from '$lib/services/transactionService';
 	import type { ExpenseCategory } from '$lib/services/expenseService';
-	import { getExpenseCategories } from '$lib/services/expenseService';
+	import { getExpenseCategories, getExpenseCategoriesByParentId } from '$lib/services/expenseService';
 
 	// Variável para guardar a "promessa" dos dados
 	let transactionsPromise: Promise<Transaction[]> | null = null;
@@ -18,9 +18,13 @@
 		value: 0,
 		transaction_date: new Date().toISOString().split('T')[0],
 		type: 'EXPENSE',
+		installment_number: 1,
+		installment_total: 1,
 		id_category: undefined
 	};
 	let expenseCategories: ExpenseCategory[] = [];
+	let expenseSubCategories: ExpenseCategory[] = [];
+	let selectedParentCategory: string = '';
 	let isSaving = false;
 	let saveError: string | null = null;
 	let showFormFields: boolean = false; // Controla a visibilidade dos campos do formulário
@@ -57,7 +61,8 @@
 			if (expenseCategories.length > 0) {
 				// Define uma categoria padrão se for uma despesa
 				if (newTransaction.type === 'EXPENSE') {
-					newTransaction.id_category = expenseCategories[0].id_category;
+					selectedParentCategory = expenseCategories[0].id_category;
+					await handleParentCategoryChange();
 				}
 			}
 		} catch (error) {
@@ -66,14 +71,41 @@
 		}
 	}
 
-	function resetForm() {
+	async function handleParentCategoryChange() {
+		if (selectedParentCategory) {
+			try {
+				// Define a categoria da transação como a categoria pai inicialmente
+				newTransaction.id_category = selectedParentCategory;
+				
+				expenseSubCategories = await getExpenseCategoriesByParentId(selectedParentCategory);
+				
+				// Se houver subcategorias, seleciona a primeira por padrão
+				if (expenseSubCategories.length > 0) {
+					newTransaction.id_category = expenseSubCategories[0].id_category;
+				}
+			} catch (error) {
+				console.error('Erro ao buscar subcategorias:', error);
+				expenseSubCategories = [];
+			}
+		} else {
+			expenseSubCategories = [];
+			newTransaction.id_category = undefined;
+		}
+	}
+
+	async function resetForm() {
+		selectedParentCategory = expenseCategories.length > 0 ? expenseCategories[0].id_category : '';
+		await handleParentCategoryChange();
+
 		newTransaction = {
 			id_transaction: '',
 			description: '',
 			value: 0,
 			transaction_date: new Date().toISOString().split('T')[0],
 			type: 'EXPENSE',
-			id_category: expenseCategories.length > 0 ? expenseCategories[0].id_category : undefined
+			installment_number: 1,
+			installment_total: 1,
+			id_category: newTransaction.id_category // Já definido pelo handleParentCategoryChange
 		};
 		saveError = null;
 	}
@@ -98,7 +130,7 @@
 
 			await saveTransaction(transactionToSave);
 			toggleFormFields()
-			resetForm();
+			await resetForm();
 			showSuccessDialog = true; // Mostra o diálogo de sucesso
 			handleSearch(); // Recarrega a lista de transações
 		} catch (error: any) {
@@ -121,16 +153,24 @@
 			value: transaction.value,
 			transaction_date: transaction.transaction_date,
 			type: 'EXPENSE',
+			installment_number: transaction.installment_number,
+			installment_total: transaction.installment_total,
 			id_category: transaction.category ? transaction.category.id_category : undefined
 		};
 		showFormFields = true; // Garante que o formulário esteja visível
 		console.log('Editar transação:', transaction);
 	}
 
-	function handleDelete(transaction: Transaction) {
-		// Placeholder para lógica de exclusão
-		console.log('Deletar transação:', transaction);
-		// TODO: Implementar lógica para deletar a transação e recarregar a lista
+	async function handleDelete(transaction: Transaction) {
+		if (confirm('Tem certeza que deseja excluir esta transação?')) {
+			try {
+				await deleteTransaction(transaction);
+				handleSearch();
+			} catch (error) {
+				console.error('Erro ao excluir transação:', error);
+				alert('Erro ao excluir transação.');
+			}
+		}
 	}
 
 	function closeSuccessDialog() {
@@ -161,6 +201,14 @@
 						<input type="date" id="transaction_date" bind:value={newTransaction.transaction_date} required />
 					</div>
 					<div class="form-group">
+						<label for="installment_number">Parcela</label>
+						<input type="number" id="installment_number" min="1" bind:value={newTransaction.installment_number} required />
+					</div>
+					<div class="form-group">
+						<label for="installment_total">Total Parcelas</label>
+						<input type="number" id="installment_total" min="1" bind:value={newTransaction.installment_total} required />
+					</div>
+					<div class="form-group">
 						<label for="type">Tipo</label>
 						<select id="type" bind:value={newTransaction.type}>
 							<option value="EXPENSE">Despesa</option>
@@ -168,14 +216,24 @@
 						</select>
 					</div>
 					{#if newTransaction.type === 'EXPENSE'}
-						<div class="form-group full-width">
+						<div class="form-group">
 							<label for="category">Categoria</label>
-							<select id="category" bind:value={newTransaction.id_category} required>
+							<select id="category" bind:value={selectedParentCategory} on:change={handleParentCategoryChange} required>
 								{#each expenseCategories as category (category.id_category)}
 									<option value={category.id_category}>{category.description}</option>
 								{/each}
 							</select>
 						</div>
+						{#if expenseSubCategories.length > 0}
+							<div class="form-group">
+								<label for="subcategory">Subcategoria</label>
+								<select id="subcategory" bind:value={newTransaction.id_category} required>
+									{#each expenseSubCategories as subCategory (subCategory.id_category)}
+										<option value={subCategory.id_category}>{subCategory.description}</option>
+									{/each}
+								</select>
+							</div>
+						{/if}
 					{/if}
 				</div>
 				<button type="submit" disabled={isSaving}>
@@ -224,6 +282,8 @@
 								<th>Data</th>
 								<th>Descrição</th>
 								<th>Categoria</th>
+								<th>Parcela</th>
+								<th>Total Parcelas</th>
 								<th class="align-right">Valor</th>
 								<th>Ações</th>
 							</tr>
@@ -234,6 +294,8 @@
 									<td>{new Date(transaction.transaction_date + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
 									<td>{transaction.description}</td>
 									<td>{transaction.category?.description ?? '-'}</td>
+									<td>{transaction.installment_number}</td>
+									<td>{transaction.installment_total}</td>
 									<td
 										class="align-right {transaction.type === 'INCOME' ? 'income' : 'expense'}"
 									>

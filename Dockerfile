@@ -42,6 +42,7 @@ COPY --from=build /app/package.json ./package.json
 
 # Expõe a porta em que a aplicação SvelteKit irá rodar (padrão do adapter-node é 3000)
 EXPOSE 3000
+ENV HOST=0.0.0.0
 
 # Define o comando para iniciar a aplicação quando o container for executado
 # O servidor Node.js fica no diretório 'build'

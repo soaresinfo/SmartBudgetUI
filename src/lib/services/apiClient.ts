@@ -51,7 +51,7 @@ export const apiClient = {
 	get: (url: string) => request('GET', url),
 	post: (url: string, data: unknown) => request('POST', url, data),
 	put: (url: string, data: unknown) => request('PUT', url, data),
-	delete: (url: string) => request('DELETE', url)
+	delete: (url: string, data: unknown) => request('DELETE', url, data)
 };
 
 
