@@ -55,6 +55,7 @@
 	async function fetchCategories() {
 		try {
 			expenseCategories = await getExpenseCategories();
+			expenseCategories.sort((a, b) => a.description.localeCompare(b.description));
 			console.log('opa');
 			console.log(expenseCategories);
 		
@@ -78,6 +79,7 @@
 				newTransaction.id_category = selectedParentCategory;
 				
 				expenseSubCategories = await getExpenseCategoriesByParentId(selectedParentCategory);
+				expenseSubCategories.sort((a, b) => a.description.localeCompare(b.description));
 				
 				// Se houver subcategorias, seleciona a primeira por padrão
 				if (expenseSubCategories.length > 0) {
@@ -359,8 +361,10 @@
 <style>
 	.container {
 		max-width: 1200px;
+		width: 100%;
 		margin: 2rem auto;
 		padding: 0 1rem;
+		box-sizing: border-box;
 		font-family: system-ui, sans-serif;
 	}
 
