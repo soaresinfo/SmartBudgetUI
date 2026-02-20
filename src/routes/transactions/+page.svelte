@@ -342,6 +342,7 @@
 	.container {
 		max-width: 1200px;
 		margin: 2rem auto;
+		padding: 0 1rem;
 		font-family: system-ui, sans-serif;
 	}
 
@@ -376,9 +377,15 @@
 
 	.form-grid {
 		display: grid;
-		grid-template-columns: repeat(2, 1fr);
+		grid-template-columns: 1fr;
 		gap: 1rem;
 		margin-bottom: 1rem;
+	}
+
+	@media (min-width: 768px) {
+		.form-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
 	}
 
 	.form-group {
@@ -387,7 +394,7 @@
 	}
 
 	.form-group.full-width {
-		grid-column: span 2;
+		grid-column: 1 / -1;
 	}
 
 	.form-group label {
@@ -421,12 +428,12 @@
 
 	.transaction-form button,
 	.toggle-button {
-		grid-column: span 2;
+		grid-column: 1 / -1;
 	}
 
 	.filter-form button {
 		width: 100%;
-		grid-column: span 2;
+		grid-column: 1 / -1;
 	}
 
 	.transaction-form button:hover,

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { Investment, NewInvestment } from '$lib/services/investmentService';
-	import { getInvestments, saveInvestment } from '$lib/services/investmentService';
+	import type { Investment, NewInvestment, InvestmentType, InvestmentLocation } from '$lib/services/investmentService';
+	import { getInvestments, saveInvestment, deleteInvestment, getInvestmentTypes, getLocations } from '$lib/services/investmentService';
 
 	let investmentsPromise: Promise<Investment[]> | null = null;
 	let startDate: string;
@@ -13,15 +13,18 @@
 		balance: 0,
 		month_revenue: 0,
 		last_update_date: new Date().toISOString().split('T')[0],
-		// TODO: Carregar tipos e locais da API para popular selects
 		id_investment_type: '',
 		id_location: ''
 	};
+
+	let investmentTypes: InvestmentType[] = [];
+	let investmentLocations: InvestmentLocation[] = [];
 
 	let isSaving = false;
 	let saveError: string | null = null;
 	let showFormFields: boolean = false;
 	let showSuccessDialog: boolean = false;
+	let loadError: string | null = null;
 
 	onMount(() => {
 		// Define as datas padrão para o mês atual
@@ -34,7 +37,19 @@
 		endDate = lastDayOfMonth.toISOString().split('T')[0];
 
 		handleSearch();
+		loadFormOptions();
 	});
+
+	async function loadFormOptions() {
+		try {
+			const [types, locations] = await Promise.all([getInvestmentTypes(), getLocations()]);
+			investmentTypes = types;
+			investmentLocations = locations;
+		} catch (error) {
+			console.error('Erro ao carregar opções do formulário:', error);
+			loadError = (error as Error).message || 'Erro ao carregar opções.';
+		}
+	}
 
 	function toggleFormFields() {
 		showFormFields = !showFormFields;
@@ -97,6 +112,27 @@
 		showFormFields = true; // Garante que o formulário esteja visível
 	}
 
+	async function handleDelete(investment: Investment) {
+		if (confirm('Tem certeza que deseja excluir este investimento?')) {
+			try {
+				const investmentToDelete: NewInvestment = {
+					id_investment: investment.id_investment,
+					id_portfolio: investment.id_portfolio,
+					balance: investment.balance,
+					month_revenue: investment.month_revenue,
+					last_update_date: investment.last_update_date,
+					id_investment_type: investment.investment_type.id_investment_type,
+					id_location: investment.location.id_location
+				};
+				await deleteInvestment(investmentToDelete);
+				handleSearch();
+			} catch (error) {
+				console.error('Erro ao excluir investimento:', error);
+				alert('Erro ao excluir investimento.');
+			}
+		}
+	}
+
 	/**
 	 * Função para agrupar uma lista de investimentos pela data.
 	 * @param investments A lista plana de investimentos da API.
@@ -122,6 +158,10 @@
 <main class="container">
 	<h1>Meus Investimentos</h1>
 
+	{#if loadError}
+		<div class="error-box" style="margin-bottom: 1rem;">{loadError}</div>
+	{/if}
+
 		<div class="form-section">
 		<h2>Adicionar/Editar Investimento</h2>
 		<button class="toggle-button" on:click={() => (showFormFields = !showFormFields)}>
@@ -136,26 +176,26 @@
 						<input type="number" id="balance" step="0.01" bind:value={newInvestment.balance} required />
 					</div>
 					<div class="form-group">
-						<label for="month_revenue">Rendimento no Mês</label>
-						<input type="number" id="month_revenue" step="0.01"
-							bind:value={newInvestment.month_revenue} required readonly />
-					</div>
-					<div class="form-group">
 						<label for="last_update_date">Data da Última Atualização</label>
 						<input type="date" id="last_update_date" bind:value={newInvestment.last_update_date} required />
 					</div>
-					<!-- TODO: Substituir por selects populados pela API -->
 					<div class="form-group">
-						<label for="investment_type">ID Tipo de Investimento</label>
-						<input type="text" id="investment_type" bind:value={newInvestment.id_investment_type} required />
+						<label for="investment_type">Tipo de Investimento</label>
+						<select id="investment_type" bind:value={newInvestment.id_investment_type} required>
+							<option value="" disabled selected>Selecione um tipo</option>
+							{#each investmentTypes as type (type.id_investment_type)}
+								<option value={type.id_investment_type}>{type.description}</option>
+							{/each}
+						</select>
 					</div>
 					<div class="form-group">
-						<label for="location">ID Local</label>
-						<input type="text" id="location" bind:value={newInvestment.id_location} required />
-					</div>
-					<div class="form-group">
-						<label for="id_portfolio">ID Portfolio</label>
-						<input type="text" id="id_portfolio" bind:value={newInvestment.id_portfolio} required readonly />
+						<label for="location">Local</label>
+						<select id="location" bind:value={newInvestment.id_location} required>
+							<option value="" disabled selected>Selecione um local</option>
+							{#each investmentLocations as location (location.id_location)}
+								<option value={location.id_location}>{location.description}</option>
+							{/each}
+						</select>
 					</div>
 				</div>
 				<button type="submit" disabled={isSaving}>
@@ -185,7 +225,7 @@
 		</div>
 
 	{#if showSuccessDialog}
-		<div class="dialog-overlay" on:click={() => (showSuccessDialog = false)}>
+		<div class="dialog-overlay">
 			<div class="dialog">
 				<h3>Sucesso!</h3>
 				<p>Investimento salvo com sucesso.</p>
@@ -242,7 +282,15 @@
 												<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
 											</svg>
 										</button>
-										<!-- Placeholder para botão de deletar -->
+										<button class="action-button delete-button" on:click={() => handleDelete(investment)} title="Deletar">
+											<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+												<path d="M3 6h18"/>
+												<path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+												<path d="M6 6v14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6"/>
+												<path d="M10 11v6"/>
+												<path d="M14 11v6"/>
+											</svg>
+										</button>
 									</td>
 								</tr>
 							{/each}
@@ -294,6 +342,16 @@
 													<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
 												</svg>
 												<span>Editar</span>
+											</button>
+											<button class="action-button delete-button" on:click={() => handleDelete(investment)} title="Deletar">
+												<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+													<path d="M3 6h18"/>
+													<path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+													<path d="M6 6v14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6"/>
+													<path d="M10 11v6"/>
+													<path d="M14 11v6"/>
+												</svg>
+												<span>Deletar</span>
 											</button>
 										</div>
 									</div>
@@ -465,7 +523,8 @@
 		color: #34495e;
 	}
 
-	.form-group input {
+	.form-group input,
+	.form-group select {
 		padding: 8px 10px;
 		border: 1px solid #bdc3c7;
 		border-radius: 4px;
@@ -579,6 +638,10 @@
 		color: #34495e;
 	}
 
+	.delete-button {
+		color: #c0392b;
+	}
+
 	.dialog-overlay {
 		position: fixed;
 		top: 0;
@@ -594,8 +657,35 @@
 
 	.dialog {
 		background-color: white;
-		padding: 2rem;
+		padding: 1.5rem;
 		border-radius: 8px;
+		max-width: 400px;
+		width: 90%;
 		text-align: center;
+	}
+
+	.dialog h3 {
+		color: #2c3e50;
+		margin-bottom: 1rem;
+	}
+
+	.dialog p {
+		color: #34495e;
+		margin-bottom: 1.5rem;
+	}
+
+	.dialog-button {
+		padding: 10px 20px;
+		border: none;
+		background-color: #27ae60;
+		color: white;
+		border-radius: 4px;
+		cursor: pointer;
+		font-weight: bold;
+		transition: background-color 0.2s;
+	}
+
+	.dialog-button:hover {
+		background-color: #219653;
 	}
 </style>

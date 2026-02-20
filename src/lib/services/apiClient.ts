@@ -25,18 +25,23 @@ async function request(method: string, url: string, data?: unknown) {
 
 	const response = await fetch(`${PUBLIC_API_BASE_URL}${url}`, options);
 
-	if (response.status === 401 || response.status === 403) {
-		// Token inválido/expirado (401) ou acesso negado (403).
-		// Em ambos os casos, limpamos o token e forçamos um novo login.
-		const errorMessage =
-			response.status === 401
-				? 'Sessão expirada. Por favor, faça o login novamente.'
-				: 'Acesso negado. Você não tem permissão para acessar este recurso.';
+	if (response.status === 401) {
+		// Token inválido/expirado (401).
+		// Limpamos o token e forçamos um novo login.
 		authToken.set(null);
+		if (browser) {
+			localStorage.removeItem('authToken');
+		}
 		if (browser) {
 			await goto('/login');
 		}
-		throw new Error(errorMessage);
+		throw new Error('Sessão expirada. Por favor, faça o login novamente.');
+	}
+
+	if (response.status === 403) {
+		// Acesso negado (403).
+		// Não redirecionamos para login, apenas lançamos o erro para ser tratado pela UI.
+		throw new Error('Acesso negado. Você não tem permissão para acessar este recurso.');
 	}
 
 	if (!response.ok) {
@@ -53,5 +58,3 @@ export const apiClient = {
 	put: (url: string, data: unknown) => request('PUT', url, data),
 	delete: (url: string, data: unknown) => request('DELETE', url, data)
 };
-
-
