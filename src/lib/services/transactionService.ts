@@ -9,8 +9,10 @@ export interface Transaction {
 	value: number;
 	transaction_date: string; // A data virá como string no JSON
 	type: 'INCOME' | 'EXPENSE';
-	expense: {
-		id_expense: string;
+	installment_number: number;
+	installment_total: number;
+	category: {
+		id_category: string;
 		planned_value:number;
         description:string;
 	};
@@ -24,7 +26,9 @@ export type NewTransaction = {
 	value: number;
 	transaction_date: string;
 	type: 'INCOME' | 'EXPENSE';
-	id_expense?: string; // Opcional, pois só se aplica a 'EXPENSE'
+	installment_number: number;
+	installment_total: number;
+	id_category?: string; // Opcional, pois só se aplica a 'EXPENSE'
 };
 /**
  * Busca a lista de transações da API do backend.
@@ -44,4 +48,12 @@ export async function getTransactions(startDate: string, endDate: string): Promi
  */
 export async function saveTransaction(transaction: NewTransaction): Promise<void> {
 	await apiClient.post(`${PUBLIC_API_PATH_URL}/v1/transactions`, transaction);
+}
+
+/**
+ * Salva uma nova transação na API do backend.
+ * @param transaction - O objeto da nova transação.
+ */
+export async function deleteTransaction(transaction: NewTransaction): Promise<void> {
+	await apiClient.delete(`${PUBLIC_API_PATH_URL}/v1/transactions`, transaction);
 }
