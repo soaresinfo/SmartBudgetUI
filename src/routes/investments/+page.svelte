@@ -155,6 +155,27 @@
 	}
 </script>
 
+<aside class="sidebar">
+	<div class="sidebar-content">
+		<button class="sidebar-btn" on:click={() => (showFormFields = !showFormFields)} title={showFormFields ? 'Ocultar Formulário' : 'Adicionar Novo'}>
+			<span class="icon">
+				{#if showFormFields}
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<line x1="18" y1="6" x2="6" y2="18"></line>
+						<line x1="6" y1="6" x2="18" y2="18"></line>
+					</svg>
+				{:else}
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<line x1="12" y1="5" x2="12" y2="19"></line>
+						<line x1="5" y1="12" x2="19" y2="12"></line>
+					</svg>
+				{/if}
+			</span>
+			<span class="text">{showFormFields ? 'Cancelar' : 'Novo Investimento'}</span>
+		</button>
+	</div>
+</aside>
+
 <main class="container">
 	<h1>Meus Investimentos</h1>
 
@@ -162,13 +183,9 @@
 		<div class="error-box" style="margin-bottom: 1rem;">{loadError}</div>
 	{/if}
 
+	{#if showFormFields}
 		<div class="form-section">
 		<h2>Adicionar/Editar Investimento</h2>
-		<button class="toggle-button" on:click={() => (showFormFields = !showFormFields)}>
-			{showFormFields ? 'Ocultar Formulário' : 'Adicionar Novo'}
-		</button>
-
-		{#if showFormFields}
 			<form on:submit|preventDefault={handleSave} class="transaction-form">
 				<div class="form-grid">
 					<div class="form-group">
@@ -205,8 +222,8 @@
 					<p class="error-message">{saveError}</p>
 				{/if}
 			</form>
-		{/if}
-	</div>
+		</div>
+	{/if}
 
 	<div class="form-section">
 		<h2>Pesquisar Investimentos</h2>
@@ -687,5 +704,54 @@
 
 	.dialog-button:hover {
 		background-color: #219653;
+	}
+
+	/* Sidebar Styles */
+	.sidebar {
+		position: fixed;
+		left: 0;
+		top: 50%;
+		transform: translateY(-50%);
+		background-color: #3498db;
+		border-top-right-radius: 8px;
+		border-bottom-right-radius: 8px;
+		box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+		z-index: 100;
+		width: 50px;
+		transition: width 0.3s ease;
+		overflow: hidden;
+	}
+
+	.sidebar:hover {
+		width: 220px;
+	}
+
+	.sidebar-content {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.sidebar-btn {
+		display: flex;
+		align-items: center;
+		background: none;
+		border: none;
+		color: white;
+		padding: 15px;
+		cursor: pointer;
+		width: 100%;
+		white-space: nowrap;
+	}
+
+	.sidebar-btn .icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-right: 15px;
+	}
+
+	.sidebar-btn .text {
+		font-weight: bold;
+		font-size: 1rem;
 	}
 </style>
