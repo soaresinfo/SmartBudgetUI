@@ -27,6 +27,7 @@
 	let selectedParentCategory: string = '';
 	let isSaving = false;
 	let displayValue = '0,00';
+	let filterText = '';
 
 	function handleValueInput(event: Event) {
 		const input = event.target as HTMLInputElement;
@@ -325,16 +326,24 @@
 		{#await transactionsPromise}
 			<p class="loading-message">Carregando transações...</p>
 		{:then transactions}
+			{@const filteredTransactions = transactions.filter((t) => {
+				const search = filterText.toLowerCase();
+				return t.description.toLowerCase().includes(search) || (t.category?.description ?? '').toLowerCase().includes(search);
+			})}
 			{#if transactions.length > 0}
-				{@const balance = transactions.reduce((acc, t) => {
+				{@const balance = filteredTransactions.reduce((acc, t) => {
 						return t.type === 'INCOME' ? acc + t.value : acc - t.value;
 					}, 0)}
 				<div class="total-summary">
-					<strong>Saldo do Período: </strong>
-					<span class={balance >= 0 ? 'income' : 'expense'}>
-						{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(balance)}
-					</span>
+					<input type="text" class="filter-input" bind:value={filterText} placeholder="Filtrar por descrição ou categoria..." />
+					<div>
+						<strong>Gastos do Período: </strong>
+						<span class={balance >= 0 ? 'income' : 'expense'}>
+							{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(balance)}
+						</span>
+					</div>
 				</div>
+				{#if filteredTransactions.length > 0}
 				<div class="table-container">
 					<table>
 						<thead>
@@ -349,7 +358,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							{#each transactions as transaction (transaction.id_transaction)}
+							{#each filteredTransactions as transaction (transaction.id_transaction)}
 								<tr>
 									<td>{new Date(transaction.transaction_date + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
 									<td>{transaction.description}</td>
@@ -386,6 +395,9 @@
 						</tbody>
 					</table>
 				</div>
+				{:else}
+					<p>Nenhuma transação encontrada com o filtro "{filterText}".</p>
+				{/if}
 			{:else}
 				<p>Nenhuma transação encontrada para o período selecionado.</p>
 			{/if}
@@ -567,12 +579,22 @@
 	}
 
 	.total-summary {
-		text-align: right;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
 		font-size: 1.2rem;
 		margin-bottom: 1rem;
 		padding: 1rem;
 		background-color: #f9f9f9;
 		border-radius: 8px;
+	}
+
+	.filter-input {
+		padding: 8px 12px;
+		border: 1px solid #bdc3c7;
+		border-radius: 4px;
+		font-size: 1rem;
+		width: 300px;
 	}
 
 	.actions {
