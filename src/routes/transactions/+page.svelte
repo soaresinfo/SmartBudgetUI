@@ -326,6 +326,15 @@
 			<p class="loading-message">Carregando transações...</p>
 		{:then transactions}
 			{#if transactions.length > 0}
+				{@const balance = transactions.reduce((acc, t) => {
+						return t.type === 'INCOME' ? acc + t.value : acc - t.value;
+					}, 0)}
+				<div class="total-summary">
+					<strong>Saldo do Período: </strong>
+					<span class={balance >= 0 ? 'income' : 'expense'}>
+						{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(balance)}
+					</span>
+				</div>
 				<div class="table-container">
 					<table>
 						<thead>
@@ -505,7 +514,7 @@
 
 	th,
 	td {
-		padding: 12px 15px;
+		padding: 4px 15px;
 		text-align: left;
 		border-bottom: 1px solid #dfe6e9;
 	}
@@ -555,6 +564,15 @@
 		color: #c0392b;
 		font-weight: 500;
 		margin-top: 0.5rem;
+	}
+
+	.total-summary {
+		text-align: right;
+		font-size: 1.2rem;
+		margin-bottom: 1rem;
+		padding: 1rem;
+		background-color: #f9f9f9;
+		border-radius: 8px;
 	}
 
 	.actions {
