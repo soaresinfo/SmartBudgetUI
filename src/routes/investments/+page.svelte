@@ -43,8 +43,8 @@
 	async function loadFormOptions() {
 		try {
 			const [types, locations] = await Promise.all([getInvestmentTypes(), getLocations()]);
-			investmentTypes = types;
-			investmentLocations = locations;
+			investmentTypes = types.sort((a, b) => a.description.localeCompare(b.description));
+			investmentLocations = locations.sort((a, b) => a.description.localeCompare(b.description));
 		} catch (error) {
 			console.error('Erro ao carregar opções do formulário:', error);
 			loadError = (error as Error).message || 'Erro ao carregar opções.';
@@ -392,8 +392,10 @@
 <style>
 	.container {
 		max-width: 1200px;
+		width: 100%;
 		margin: 2rem auto;
 		padding: 1rem;
+		box-sizing: border-box;
 		font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
 			Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	}
