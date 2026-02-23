@@ -26,6 +26,25 @@
 	let expenseSubCategories: ExpenseCategory[] = [];
 	let selectedParentCategory: string = '';
 	let isSaving = false;
+	let displayValue = '0,00';
+
+	function handleValueInput(event: Event) {
+		const input = event.target as HTMLInputElement;
+		let value = input.value.replace(/\D/g, ''); // Remove tudo que não for dígito
+
+		if (value === '') {
+			value = '0';
+		}
+
+		// Remove zeros à esquerda
+		value = parseInt(value, 10).toString();
+
+		// Formata para ter duas casas decimais
+		const paddedValue = value.padStart(3, '0');
+		displayValue = paddedValue.slice(0, -2) + ',' + paddedValue.slice(-2);
+		newTransaction.value = parseFloat(displayValue.replace(',', '.'));
+	}
+
 	let saveError: string | null = null;
 	let showFormFields: boolean = false; // Controla a visibilidade dos campos do formulário
 	let showSuccessDialog: boolean = false; // Controla a visibilidade do diálogo de sucesso
@@ -48,7 +67,9 @@
 	function handleSearch() {
 		if (startDate && endDate) {
 			console.log(`Buscando transações de ${startDate} a ${endDate}`);
-			transactionsPromise = getTransactions(startDate, endDate);
+			transactionsPromise = getTransactions(startDate, endDate).then((transactions) => {
+				return transactions.sort((a, b) => Number(b.id_transaction) - Number(a.id_transaction));
+			});
 		}
 	}
 
@@ -56,8 +77,6 @@
 		try {
 			expenseCategories = await getExpenseCategories();
 			expenseCategories.sort((a, b) => a.description.localeCompare(b.description));
-			console.log('opa');
-			console.log(expenseCategories);
 		
 			if (expenseCategories.length > 0) {
 				// Define uma categoria padrão se for uma despesa
@@ -109,6 +128,7 @@
 			installment_total: 1,
 			id_category: newTransaction.id_category // Já definido pelo handleParentCategoryChange
 		};
+		displayValue = '0,00';
 		saveError = null;
 	}
 
@@ -159,6 +179,11 @@
 			installment_total: transaction.installment_total,
 			id_category: transaction.category ? transaction.category.id_category : undefined
 		};
+		displayValue = new Intl.NumberFormat('pt-BR', {
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2,
+			useGrouping: false
+		}).format(transaction.value);
 		showFormFields = true; // Garante que o formulário esteja visível
 		console.log('Editar transação:', transaction);
 	}
@@ -214,7 +239,13 @@
 					</div>
 					<div class="form-group">
 						<label for="value">Valor</label>
-						<input type="number" id="value" step="0.01" bind:value={newTransaction.value} required />
+						<input
+							type="text"
+							id="value"
+							value={displayValue}
+							on:input={handleValueInput}
+							required
+						/>
 					</div>
 					<div class="form-group">
 						<label for="transaction_date">Data</label>
