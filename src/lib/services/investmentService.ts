@@ -18,6 +18,7 @@ export interface Investment {
 	id_portfolio: string;
 	balance: number;
 	month_revenue: number;
+	contribution: number;
 	last_update_date: string; // A data virá como string no JSON
 	investment_type: InvestmentType;
 	location: InvestmentLocation;
@@ -28,6 +29,7 @@ export type NewInvestment = {
 	id_portfolio: string;
 	balance: number;
 	month_revenue: number;
+	contribution: number;
 	last_update_date: string;
 	id_investment_type: string;
 	id_location: string;

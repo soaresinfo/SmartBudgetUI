@@ -12,6 +12,7 @@
 		id_portfolio: '1', // TODO: Tornar dinâmico se houver múltiplos portfolios
 		balance: 0,
 		month_revenue: 0,
+		contribution: 0,
 		last_update_date: new Date().toISOString().split('T')[0],
 		id_investment_type: '',
 		id_location: ''
@@ -68,6 +69,7 @@
 			id_portfolio: '1',
 			balance: 0,
 			month_revenue: 0,
+			contribution: 0,
 			last_update_date: new Date().toISOString().split('T')[0],
 			id_investment_type: '',
 			id_location: ''
@@ -105,6 +107,7 @@
 			id_portfolio: investment.id_portfolio,
 			balance: investment.balance,
 			month_revenue: investment.month_revenue,
+			contribution: investment.contribution,
 			last_update_date: investment.last_update_date,
 			id_investment_type: investment.investment_type.id_investment_type,
 			id_location: investment.location.id_location
@@ -120,6 +123,7 @@
 					id_portfolio: investment.id_portfolio,
 					balance: investment.balance,
 					month_revenue: investment.month_revenue,
+					contribution: investment.contribution,
 					last_update_date: investment.last_update_date,
 					id_investment_type: investment.investment_type.id_investment_type,
 					id_location: investment.location.id_location
@@ -191,6 +195,10 @@
 					<div class="form-group">
 						<label for="balance">Saldo</label>
 						<input type="number" id="balance" step="0.01" bind:value={newInvestment.balance} required />
+					</div>
+					<div class="form-group">
+						<label for="contribution">Aporte</label>
+						<input type="number" id="contribution" step="0.01" bind:value={newInvestment.contribution} />
 					</div>
 					<div class="form-group">
 						<label for="last_update_date">Data da Última Atualização</label>
@@ -267,6 +275,7 @@
 								<th>Local</th>
 								<th class="align-right">Saldo</th>
 								<th class="align-right">Rendimento no Mês</th>
+								<th class="align-right">Aporte</th>
 								<th>Ações</th>
 							</tr>
 						</thead>
@@ -291,6 +300,12 @@
 											style: 'currency',
 											currency: 'BRL'
 										}).format(investment.month_revenue)}
+									</td>
+									<td class="align-right revenue">
+										{new Intl.NumberFormat('pt-BR', {
+											style: 'currency',
+											currency: 'BRL'
+										}).format(investment.contribution)}
 									</td>
 									<td class="actions">
 										<button class="action-button edit-button" on:click={() => handleEdit(investment)} title="Editar">
@@ -350,6 +365,15 @@
 													style: 'currency',
 													currency: 'BRL'
 												}).format(investment.month_revenue)}
+											</span>
+										</p>
+										<p class="card-revenue">
+											Aporte:
+											<span>
+												{new Intl.NumberFormat('pt-BR', {
+													style: 'currency',
+													currency: 'BRL'
+												}).format(investment.contribution)}
 											</span>
 										</p>
 										<div class="card-actions">
