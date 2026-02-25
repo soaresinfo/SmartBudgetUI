@@ -144,7 +144,7 @@
 	 */
 	function groupInvestmentsByDate(investments: Investment[]) {
 		const grouped = investments.reduce((acc, investment) => {
-			const date = investment.last_update_date;
+			const date = investment.last_update_date.substring(0, 7);
 			if (!acc[date]) {
 				acc[date] = [];
 			}
@@ -339,7 +339,6 @@
 						<div class="date-group">
 							<h2 class="date-group-header">
 								{new Date(group.date + 'T00:00:00').toLocaleDateString('pt-BR', {
-									day: '2-digit',
 									month: 'long',
 									year: 'numeric'
 								})}
