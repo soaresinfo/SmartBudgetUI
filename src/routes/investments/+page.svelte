@@ -26,6 +26,9 @@
 	let showFormFields: boolean = false;
 	let showSuccessDialog: boolean = false;
 	let loadError: string | null = null;
+	
+	let displayBalance = '0,00';
+	let displayContribution = '0,00';
 
 	onMount(() => {
 		// Define as datas padrão para o mês atual
@@ -75,6 +78,8 @@
 			id_location: ''
 		};
 		saveError = null;
+		displayBalance = '0,00';
+		displayContribution = '0,00';
 	}
 
 	async function handleSave() {
@@ -112,6 +117,16 @@
 			id_investment_type: investment.investment_type.id_investment_type,
 			id_location: investment.location.id_location
 		};
+		displayBalance = new Intl.NumberFormat('pt-BR', {
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2,
+			useGrouping: false
+		}).format(investment.balance);
+		displayContribution = new Intl.NumberFormat('pt-BR', {
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2,
+			useGrouping: false
+		}).format(investment.contribution);
 		showFormFields = true; // Garante que o formulário esteja visível
 	}
 
@@ -157,6 +172,37 @@
 			.map(([date, investments]) => ({ date, investments }))
 			.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Ordena do mais recente para o mais antigo
 	}
+
+	function handleBalanceInput(event: Event) {
+		const input = event.target as HTMLInputElement;
+		let value = input.value.replace(/\D/g, ''); // Remove tudo que não for dígito
+
+		if (value === '') {
+			value = '0';
+		}
+
+		// Remove zeros à esquerda
+		value = parseInt(value, 10).toString();
+
+		// Formata para ter duas casas decimais
+		const paddedValue = value.padStart(3, '0');
+		displayBalance = paddedValue.slice(0, -2) + ',' + paddedValue.slice(-2);
+		newInvestment.balance = parseFloat(displayBalance.replace(',', '.'));
+	}
+
+	function handleContributionInput(event: Event) {
+		const input = event.target as HTMLInputElement;
+		let value = input.value.replace(/\D/g, '');
+
+		if (value === '') {
+			value = '0';
+		}
+
+		value = parseInt(value, 10).toString();
+		const paddedValue = value.padStart(3, '0');
+		displayContribution = paddedValue.slice(0, -2) + ',' + paddedValue.slice(-2);
+		newInvestment.contribution = parseFloat(displayContribution.replace(',', '.'));
+	}
 </script>
 
 <aside class="sidebar">
@@ -194,11 +240,11 @@
 				<div class="form-grid">
 					<div class="form-group">
 						<label for="balance">Saldo</label>
-						<input type="number" id="balance" step="0.01" bind:value={newInvestment.balance} required />
+						<input type="text" id="balance" value={displayBalance} on:input={handleBalanceInput} required />
 					</div>
 					<div class="form-group">
 						<label for="contribution">Aporte</label>
-						<input type="number" id="contribution" step="0.01" bind:value={newInvestment.contribution} />
+						<input type="text" id="contribution" value={displayContribution} on:input={handleContributionInput} />
 					</div>
 					<div class="form-group">
 						<label for="last_update_date">Data da Última Atualização</label>
