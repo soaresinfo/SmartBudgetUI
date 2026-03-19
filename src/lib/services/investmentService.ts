@@ -22,6 +22,7 @@ export interface Investment {
 	last_update_date: string; // A data virá como string no JSON
 	investment_type: InvestmentType;
 	location: InvestmentLocation;
+	withdraw: number;
 }
 
 export type NewInvestment = {
@@ -33,6 +34,7 @@ export type NewInvestment = {
 	last_update_date: string;
 	id_investment_type: string;
 	id_location: string;
+	withdraw: number;
 };
 /**
  * Busca a lista de investimentos da API do backend.

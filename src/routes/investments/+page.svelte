@@ -15,7 +15,8 @@
 		contribution: 0,
 		last_update_date: new Date().toISOString().split('T')[0],
 		id_investment_type: '',
-		id_location: ''
+		id_location: '',
+		withdraw: 0
 	};
 
 	let investmentTypes: InvestmentType[] = [];
@@ -29,6 +30,7 @@
 	
 	let displayBalance = '0,00';
 	let displayContribution = '0,00';
+	let displayWithdraw = '0,00';
 
 	onMount(() => {
 		// Define as datas padrão para o mês atual
@@ -75,11 +77,13 @@
 			contribution: 0,
 			last_update_date: new Date().toISOString().split('T')[0],
 			id_investment_type: '',
-			id_location: ''
+			id_location: '',
+			withdraw: 0
 		};
 		saveError = null;
 		displayBalance = '0,00';
 		displayContribution = '0,00';
+		displayWithdraw = '0,00';
 	}
 
 	async function handleSave() {
@@ -115,7 +119,8 @@
 			contribution: investment.contribution,
 			last_update_date: investment.last_update_date,
 			id_investment_type: investment.investment_type.id_investment_type,
-			id_location: investment.location.id_location
+			id_location: investment.location.id_location,
+			withdraw: investment.withdraw
 		};
 		displayBalance = new Intl.NumberFormat('pt-BR', {
 			minimumFractionDigits: 2,
@@ -127,6 +132,11 @@
 			maximumFractionDigits: 2,
 			useGrouping: false
 		}).format(investment.contribution);
+		displayWithdraw = new Intl.NumberFormat('pt-BR', {
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2,
+			useGrouping: false
+		}).format(investment.withdraw);
 		showFormFields = true; // Garante que o formulário esteja visível
 	}
 
@@ -141,7 +151,8 @@
 					contribution: investment.contribution,
 					last_update_date: investment.last_update_date,
 					id_investment_type: investment.investment_type.id_investment_type,
-					id_location: investment.location.id_location
+					id_location: investment.location.id_location,
+					withdraw: investment.withdraw
 				};
 				await deleteInvestment(investmentToDelete);
 				handleSearch();
@@ -203,6 +214,20 @@
 		displayContribution = paddedValue.slice(0, -2) + ',' + paddedValue.slice(-2);
 		newInvestment.contribution = parseFloat(displayContribution.replace(',', '.'));
 	}
+
+	function handleWithdrawInput(event: Event) {
+		const input = event.target as HTMLInputElement;
+		let value = input.value.replace(/\D/g, '');
+
+		if (value === '') {
+			value = '0';
+		}
+
+		value = parseInt(value, 10).toString();
+		const paddedValue = value.padStart(3, '0');
+		displayWithdraw = paddedValue.slice(0, -2) + ',' + paddedValue.slice(-2);
+		newInvestment.withdraw = parseFloat(displayWithdraw.replace(',', '.'));
+	}
 </script>
 
 <aside class="sidebar">
@@ -245,6 +270,10 @@
 					<div class="form-group">
 						<label for="contribution">Aporte</label>
 						<input type="text" id="contribution" value={displayContribution} on:input={handleContributionInput} />
+					</div>
+					<div class="form-group">
+						<label for="withdraw">Retirada</label>
+						<input type="text" id="withdraw" value={displayWithdraw} on:input={handleWithdrawInput} />
 					</div>
 					<div class="form-group">
 						<label for="last_update_date">Data da Última Atualização</label>
@@ -310,6 +339,18 @@
 			<p class="loading-message">Carregando investimentos...</p>
 		{:then investments}
 			{@const groupedInvestments = groupInvestmentsByDate(investments)}
+			{@const totalBalance = investments.reduce((acc, curr) => acc + (Number(curr.balance) || 0), 0)}
+
+			<div class="total-summary">
+				<span class="total-label">Saldo Total Acumulado</span>
+				<span class="total-value">
+					{new Intl.NumberFormat('pt-BR', {
+						style: 'currency',
+						currency: 'BRL'
+					}).format(totalBalance)}
+				</span>
+			</div>
+
 			<!-- Se houver mais de um investimento, mostra a tabela -->
 			{#if groupedInvestments.length > 1}
 				<div class="table-container">
@@ -322,6 +363,7 @@
 								<th class="align-right">Saldo</th>
 								<th class="align-right">Rendimento no Mês</th>
 								<th class="align-right">Aporte</th>
+								<th class="align-right">Retirada</th>
 								<th>Ações</th>
 							</tr>
 						</thead>
@@ -352,6 +394,12 @@
 											style: 'currency',
 											currency: 'BRL'
 										}).format(investment.contribution)}
+									</td>
+									<td class="align-right revenue">
+										{new Intl.NumberFormat('pt-BR', {
+											style: 'currency',
+											currency: 'BRL'
+										}).format(investment.withdraw)}
 									</td>
 									<td class="actions">
 										<button class="action-button edit-button" on:click={() => handleEdit(investment)} title="Editar">
@@ -419,6 +467,15 @@
 													style: 'currency',
 													currency: 'BRL'
 												}).format(investment.contribution)}
+											</span>
+										</p>
+										<p class="card-revenue">
+											Retirada:
+											<span>
+												{new Intl.NumberFormat('pt-BR', {
+													style: 'currency',
+													currency: 'BRL'
+												}).format(investment.withdraw)}
 											</span>
 										</p>
 										<div class="card-actions">
@@ -547,6 +604,24 @@
 		padding-top: 1rem;
 		display: flex;
 		justify-content: flex-end;
+	}
+	
+	.total-summary {
+		background-color: #3498db;
+		color: white;
+		padding: 1.5rem;
+		border-radius: 8px;
+		margin-bottom: 2rem;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		font-size: 1.2rem;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	}
+
+	.total-value {
+		font-size: 1.8rem;
+		font-weight: bold;
 	}
 
 	.card-actions .action-button {
