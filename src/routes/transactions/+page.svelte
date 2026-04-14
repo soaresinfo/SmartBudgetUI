@@ -243,6 +243,7 @@
 						<input
 							type="text"
 							id="value"
+							inputmode="decimal"
 							value={displayValue}
 							on:input={handleValueInput}
 							required
