@@ -265,15 +265,15 @@
 				<div class="form-grid">
 					<div class="form-group">
 						<label for="balance">Saldo</label>
-						<input type="text" id="balance" value={displayBalance} on:input={handleBalanceInput} required />
+						<input type="text" id="balance" inputmode="decimal" value={displayBalance} on:input={handleBalanceInput} required />
 					</div>
 					<div class="form-group">
 						<label for="contribution">Aporte</label>
-						<input type="text" id="contribution" value={displayContribution} on:input={handleContributionInput} />
+						<input type="text" id="contribution" inputmode="decimal" value={displayContribution} on:input={handleContributionInput} />
 					</div>
 					<div class="form-group">
 						<label for="withdraw">Retirada</label>
-						<input type="text" id="withdraw" value={displayWithdraw} on:input={handleWithdrawInput} />
+						<input type="text" id="withdraw" inputmode="decimal" value={displayWithdraw} on:input={handleWithdrawInput} />
 					</div>
 					<div class="form-group">
 						<label for="last_update_date">Data da Última Atualização</label>
